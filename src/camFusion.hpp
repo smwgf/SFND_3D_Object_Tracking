@@ -18,4 +18,6 @@ void computeTTCCamera(std::vector<cv::KeyPoint> &kptsPrev, std::vector<cv::KeyPo
                       std::vector<cv::DMatch> kptMatches, double frameRate, double &TTC, cv::Mat *visImg=nullptr);
 void computeTTCLidar(std::vector<LidarPoint> &lidarPointsPrev,
                      std::vector<LidarPoint> &lidarPointsCurr, double frameRate, double &TTC);                  
+std::vector<int> Ransac3DPlane(std::vector<LidarPoint> &cloud, int maxIterations, float distanceTol);
+std::vector<LidarPoint> filterCloud(std::vector<LidarPoint> &lidarPoints);
 #endif /* camFusion_hpp */

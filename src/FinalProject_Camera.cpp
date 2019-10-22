@@ -92,7 +92,7 @@ int main(int argc, const char *argv[])
         DataFrame frame;
         frame.cameraImg = img;
         dataBuffer.push_back(frame);
-
+        cout << "imga size : col - " << img.cols << ", rows : " << img.rows << endl;
         cout << "#1 : LOAD IMAGE INTO BUFFER done" << endl;
 
 
@@ -128,6 +128,8 @@ int main(int argc, const char *argv[])
         // associate Lidar points with camera-based ROI
         float shrinkFactor = 0.10; // shrinks each bounding box by the given percentage to avoid 3D object merging at the edges of an ROI
         clusterLidarWithROI((dataBuffer.end()-1)->boundingBoxes, (dataBuffer.end() - 1)->lidarPoints, shrinkFactor, P_rect_00, R_rect_00, RT);
+
+        /*
         for(BoundingBox& b : (dataBuffer.end()-1)->boundingBoxes)
         {
             if(b.lidarPoints.size()>10)
@@ -138,9 +140,9 @@ int main(int argc, const char *argv[])
                 {
                     b.lidarPoints = r;
                 }
-            }
-                
+            }                
         }
+        */
         
         //cout << "size of bounding boxes : " << (dataBuffer.end() - 1)->boundingBoxes.size() << endl;
         // Visualize 3D objects
@@ -278,7 +280,7 @@ int main(int argc, const char *argv[])
                     double ttcLidar; 
                     computeTTCLidar(prevBB->lidarPoints, currBB->lidarPoints, sensorFrameRate, ttcLidar);
                     //// EOF STUDENT ASSIGNMENT
-                    cout << "## Test TTC : "<< ttcLidar << " s" << endl;
+                    
                     //// STUDENT ASSIGNMENT
                     //// TASK FP.3 -> assign enclosed keypoint matches to bounding box (implement -> clusterKptMatchesWithROI)
                     //// TASK FP.4 -> compute time-to-collision based on camera (implement -> computeTTCCamera)
