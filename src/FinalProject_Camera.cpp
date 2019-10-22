@@ -102,7 +102,7 @@ int main(int argc, const char *argv[])
         float nmsThreshold = 0.4;        
         detectObjects((dataBuffer.end() - 1)->cameraImg, (dataBuffer.end() - 1)->boundingBoxes, confThreshold, nmsThreshold,
                       yoloBasePath, yoloClassesFile, yoloModelConfiguration, yoloModelWeights, bVis);
-
+        
         cout << "#2 : DETECT & CLASSIFY OBJECTS done" << endl;
 
 
@@ -115,6 +115,7 @@ int main(int argc, const char *argv[])
 
         // remove Lidar points based on distance properties
         float minZ = -1.5, maxZ = -0.9, minX = 2.0, maxX = 20.0, maxY = 2.0, minR = 0.1; // focus on ego lane
+        //float minZ = -1.5, maxZ = -0.9, minX = 2.0, maxX = 20.0, maxY = 5.0, minR = 0.1; // focus on ego lane
         cropLidarPoints(lidarPoints, minX, maxX, maxY, minZ, maxZ, minR);
     
         (dataBuffer.end() - 1)->lidarPoints = lidarPoints;
@@ -127,12 +128,15 @@ int main(int argc, const char *argv[])
         // associate Lidar points with camera-based ROI
         float shrinkFactor = 0.10; // shrinks each bounding box by the given percentage to avoid 3D object merging at the edges of an ROI
         clusterLidarWithROI((dataBuffer.end()-1)->boundingBoxes, (dataBuffer.end() - 1)->lidarPoints, shrinkFactor, P_rect_00, R_rect_00, RT);
+        
 
+        //cout << "size of bounding boxes : " << (dataBuffer.end() - 1)->boundingBoxes.size() << endl;
         // Visualize 3D objects
         bVis = true;
         if(bVis)
         {
             show3DObjects((dataBuffer.end()-1)->boundingBoxes, cv::Size(4.0, 20.0), cv::Size(2000, 2000), true);
+            //show3DObjects((dataBuffer.end()-1)->boundingBoxes, cv::Size(10.0, 25.0), cv::Size(2000, 2000), true);
         }
         bVis = false;
 
@@ -140,7 +144,7 @@ int main(int argc, const char *argv[])
         
         
         // REMOVE THIS LINE BEFORE PROCEEDING WITH THE FINAL PROJECT
-        continue; // skips directly to the next image without processing what comes beneath
+        //continue; // skips directly to the next image without processing what comes beneath
 
         /* DETECT IMAGE KEYPOINTS */
 
@@ -223,6 +227,8 @@ int main(int argc, const char *argv[])
 
             // store matches in current data frame
             (dataBuffer.end()-1)->bbMatches = bbBestMatches;
+            cout << "size of pre boxes size : " << (*(dataBuffer.end()-2)).boundingBoxes.size() << endl;
+            cout << "size of bb best matches : " << bbBestMatches.size() << endl;
 
             cout << "#8 : TRACK 3D OBJECT BOUNDING BOXES done" << endl;
 
@@ -253,6 +259,8 @@ int main(int argc, const char *argv[])
                 // compute TTC for current match
                 if( currBB->lidarPoints.size()>0 && prevBB->lidarPoints.size()>0 ) // only compute TTC if we have Lidar points
                 {
+
+                    cout << "## Test TTC : " << endl;
                     //// STUDENT ASSIGNMENT
                     //// TASK FP.2 -> compute time-to-collision based on Lidar data (implement -> computeTTCLidar)
                     double ttcLidar; 

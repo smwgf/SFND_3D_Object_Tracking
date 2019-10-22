@@ -120,7 +120,7 @@ void show3DObjects(std::vector<BoundingBox> &boundingBoxes, cv::Size worldSize, 
 
     // display image
     string windowName = "3D Objects";
-    cv::namedWindow(windowName, 1);
+    cv::namedWindow(windowName, 2);
     cv::imshow(windowName, topviewImg);
 
     if(bWait)
@@ -151,8 +151,68 @@ void computeTTCLidar(std::vector<LidarPoint> &lidarPointsPrev,
     // ...
 }
 
+/*
+void matchBoundingBoxes(std::vector<cv::DMatch> &matches, std::map<int, int> &bbBestMatches, DataFrame &prevFrame, DataFrame &currFrame)
+{
+    //loop for previous frames
+    for(int i =0; i < prevFrame.boundingBoxes.size(); i++)
+    {
+        BoundingBox& boundingBox = prevFrame.boundingBoxes[i];
+        //counting matched box in current frames
+        std::vector<int> matchCount(currFrame.boundingBoxes.size(),0);
+        //loop for all matches
+        for(cv::DMatch& match : matches)
+        {
+            //if previous box's roi does not contain match point, continue loop
+            if(!boundingBox.roi.contains(prevFrame.keypoints[match.queryIdx].pt)) continue;
+            for(int j =0; j < currFrame.boundingBoxes.size(); j++)
+            {
+                BoundingBox& curBox = currFrame.boundingBoxes[j];
+                //if current box's roi contains match point, increase match count
+                if(curBox.roi.contains(currFrame.keypoints[match.trainIdx].pt))
+                {
+                    matchCount[j] = matchCount[j]+1;
+                }
+            }            
+        }
+        int max_index = max_element(matchCount.begin(),matchCount.end())-matchCount.begin();
+        //if max matched count is not zero
+        if(matchCount[max_index]>0)
+        {
+            bbBestMatches.insert(make_pair(i,max_index));
+        }        
+    }    
+}
+*/
 
 void matchBoundingBoxes(std::vector<cv::DMatch> &matches, std::map<int, int> &bbBestMatches, DataFrame &prevFrame, DataFrame &currFrame)
 {
-    // ...
+    //loop for current frames
+    for(int i =0; i < currFrame.boundingBoxes.size(); i++)
+    {
+        BoundingBox& boundingBox = currFrame.boundingBoxes[i];
+        //counting matched box in previouse frames
+        std::vector<int> matchCount(prevFrame.boundingBoxes.size(),0);
+        //loop for all matches
+        for(cv::DMatch& match : matches)
+        {
+            //if current box's roi does not contain match point, continue loop
+            if(!boundingBox.roi.contains(currFrame.keypoints[match.trainIdx].pt)) continue;
+            for(int j =0; j < prevFrame.boundingBoxes.size(); j++)
+            {
+                BoundingBox& curBox = prevFrame.boundingBoxes[j];
+                //if previous box's roi contains match point, increase match count
+                if(curBox.roi.contains(prevFrame.keypoints[match.queryIdx].pt))
+                {
+                    matchCount[j] = matchCount[j]+1;
+                }
+            }            
+        }
+        int max_index = max_element(matchCount.begin(),matchCount.end())-matchCount.begin();
+        //if max matched count is not zero
+        if(matchCount[max_index]>0)
+        {
+            bbBestMatches.insert(make_pair(max_index,i));
+        }        
+    }    
 }
